@@ -1,0 +1,267 @@
+﻿<Window x:Class="DemoJerome.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:hx="http://helix-toolkit.org/wpf/SharpDX"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:pt="http://propertytools.org/wpf"
+        xmlns:sdx="clr-namespace:SharpDX;assembly=SharpDX.Mathematics"
+        xmlns:local="clr-namespace:DemoJerome" d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
+        mc:Ignorable="d"
+        Title="DemoJerome"
+        Height="900"
+        Width="1600" Background="White" BorderBrush="Black">
+    <!--KeyDown="Window_KeyDown"-->
+    <Window.Resources>
+        <hx:RenderTechniqueConverter x:Key="RenderTechniqueConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <hx:Viewport3DX
+            x:Name="view1"
+            Title="{Binding Title}"
+            Grid.Row="0"
+            Grid.Column="0"
+            BackgroundColor="Black"
+            Camera="{Binding Camera}"
+            CoordinateSystemLabelForeground="White"
+            EffectsManager="{Binding EffectsManager}"
+            EnableSwapChainRendering="True"
+            IsShadowMappingEnabled="True"
+            ShowCoordinateSystem="True"
+            ShowFrameDetails="True"
+            ShowFrameRate="True"
+            SubTitle="{Binding SubTitle}"
+            TextBrush="White"
+            UseDefaultGestures="False" InfoForeground="Lime" InfoBackground="#BF646464">
+            <hx:Viewport3DX.InputBindings>
+                <KeyBinding Key="B" Command="hx:ViewportCommands.BackView" />
+                <KeyBinding Key="F" Command="hx:ViewportCommands.FrontView" />
+                <KeyBinding Key="U" Command="hx:ViewportCommands.TopView" />
+                <KeyBinding Key="D" Command="hx:ViewportCommands.BottomView" />
+                <KeyBinding Key="L" Command="hx:ViewportCommands.LeftView" />
+                <KeyBinding Key="R" Command="hx:ViewportCommands.RightView" />
+                <KeyBinding Command="hx:ViewportCommands.ZoomExtents" Gesture="Control+E" />
+                <MouseBinding Command="hx:ViewportCommands.Rotate" Gesture="RightClick" />
+                <MouseBinding Command="hx:ViewportCommands.Zoom" Gesture="MiddleClick" />
+                <MouseBinding Command="hx:ViewportCommands.Pan" Gesture="LeftClick" />
+            </hx:Viewport3DX.InputBindings>
+            <hx:ShadowMap3D AutoCoverCompleteScene="True" IsSceneDynamic="True"/>
+            <!--<hx:AmbientLight3D Color="{Binding AmbientLightColor}" />-->
+            <hx:DirectionalLight3D
+                Direction="{Binding Light1Direction}"
+                IsRendering="{Binding RenderLight1}"
+                Transform="{Binding Light1Transform}"
+                Color="{Binding Light1Color}" />
+            <hx:PointLight3D
+                Attenuation="{Binding Light2Attenuation}"
+                IsRendering="{Binding RenderLight2}"
+                Transform="{Binding Light2Transform}"
+                Color="{Binding Light2Color}" />
+            <hx:PointLight3D
+                Attenuation="{Binding Light3Attenuation}"
+                IsRendering="{Binding RenderLight3}"
+                Transform="{Binding Light3Transform}"
+                Color="{Binding Light3Color}" />
+            <!-- <hx:SpotLight3D
+                Attenuation="{Binding Light4Attenuation}"
+                Direction="{Binding Light4Direction}"
+                IsRendering="{Binding RenderLight4}"
+                Range="100"
+                Transform="{Binding Light4Transform}"
+                Color="{Binding Light1Color}" /> -->
+            <hx:GroupModel3D>
+                <hx:MeshGeometryModel3D
+                    CullMode="Back"
+                    Geometry="{Binding Sphere}"
+                    IsRendering="{Binding RenderLight2}"
+                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    Material="{Binding LightModelMaterial}"
+                    Transform="{Binding Light2Transform}" />
+                <hx:MeshGeometryModel3D
+                    CullMode="Back"
+                    Geometry="{Binding Sphere2}"
+                    IsRendering="{Binding RenderLight3}"
+                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    Material="{Binding LightModelMaterial2}"
+                    Transform="{Binding Light3Transform}" />
+            </hx:GroupModel3D>
+            <hx:GroupModel3D>
+                
+                <!-- Modeles de la scene, pas le sol ou la lumiere -->
+                <hx:MeshGeometryModel3D
+                    x:Name="model"
+                    Geometry="{Binding Model}"
+                    IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                    Material="{Binding ModelMaterial}"
+                    Transform="{Binding ModelTransform}" />
+
+
+                <hx:DynamicReflectionMap3D IsDynamicScene="True">
+                    <!-- Modele de la sphere centrale -->
+                    <hx:MeshGeometryModel3D
+                        x:Name="model1"
+                        CullMode="Back"
+                        Geometry="{Binding Sphere2}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ReflectMaterial}"
+                        Transform="{Binding Model1Transform}" />
+                </hx:DynamicReflectionMap3D>
+
+                
+                <!-- <hx:GroupModel3D>
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object1Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object2Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object3Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object4Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object5Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object6Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object7Transform}" />
+                    <hx:MeshGeometryModel3D
+                        CullMode="Back"
+                        Geometry="{Binding FlyingObject}"
+                        IsThrowingShadow="{Binding ElementName=view1, Path=IsShadowMappingEnabled}"
+                        Material="{Binding ObjectMaterial}"
+                        Transform="{Binding Object8Transform}" />
+                </hx:GroupModel3D> -->
+
+                
+                <!-- Modele du sol -->
+                <hx:MeshGeometryModel3D
+                    x:Name="floor"
+                    CullMode="Back"
+                    Geometry="{Binding Floor}"
+                    Material="{Binding FloorMaterial}"
+                    Transform="{Binding FloorTransform}" />
+            </hx:GroupModel3D>
+            
+            <!-- Bloom -->
+            <hx:PostEffectBloom x:Name="bloom" />
+            <!--<hx:LineGeometryModel3D Geometry="{Binding CubeEdges}" Color="{x:Static SharpDX:Color.Red}" Thickness="4"/>-->
+        </hx:Viewport3DX>
+        <StackPanel Grid.Column="1" Background="#FF383840">
+            <Expander
+                Grid.Row="0"
+                Width="Auto"
+                MinWidth="200"
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                VerticalContentAlignment="Stretch"
+                BorderBrush="WhiteSmoke"
+                Header="Lighting Settings"
+                IsExpanded="True" Foreground="White">
+                <Expander.Background>
+                    <SolidColorBrush Opacity="0.75" Color="#FF2F2F35" />
+                </Expander.Background>
+                <Grid>
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox Margin="4" IsChecked="{Binding RenderLight1}" Foreground="White">
+                            Render DirectionalLight
+                        </CheckBox>
+                        <CheckBox Margin="4" IsChecked="{Binding RenderDiffuseMap}" Foreground="White">Render Diffuse Map</CheckBox>
+                        <CheckBox Margin="4" IsChecked="{Binding RenderNormalMap}" Foreground="White">Render Normal Map</CheckBox>
+                        <ComboBox ItemsSource="{Binding TextureFiles}" SelectedValue="{Binding SelectedDiffuseTexture}" />
+                        <ComboBox ItemsSource="{Binding TextureFiles}" SelectedValue="{Binding SelectedNormalTexture}" />
+                        <Label Foreground="White">Floor Diffuse Color</Label>
+                        <pt:ColorPicker SelectedColor="{Binding FloorDiffuseColor}" Text="Floor Diffuse Color" />
+                        <Label Foreground="White">Floor Reflective Color</Label>
+                        <pt:ColorPicker SelectedColor="{Binding FloorReflectiveColor}" Text="Floor Reflective Color" />
+                        <Label Foreground="White">Floor Specular Color</Label>
+                        <pt:ColorPicker SelectedColor="{Binding FloorSpecularColor}" Text="Floor Specular Color" />
+                        <Label Foreground="White">Floor Emissive Color</Label>
+                        <pt:ColorPicker SelectedColor="{Binding FloorEmissiveColor}" Text="Floor Emissive Color" />
+                    </StackPanel>
+
+                </Grid>
+            </Expander>
+            <CheckBox IsChecked="{Binding ElementName=bloom, Path=IsRendering}" Foreground="White">Enable Bloom</CheckBox>
+            <StackPanel Orientation="Horizontal" Margin="0 5">
+                <TextBlock Foreground="White" Margin="10,0,0,0">Num BlurPass:</TextBlock>
+            </StackPanel>
+            <Slider
+                Width="200"
+                Maximum="4"
+                Minimum="1"
+                Value="{Binding ElementName=bloom, 
+                Path=NumberOfBlurPass}" />
+            <StackPanel Orientation="Horizontal" Margin="0 5">
+                <TextBlock Foreground="White" Margin="10,0,0,0">BloomCombineIntensity:</TextBlock>
+            </StackPanel>
+            <Slider
+                Width="200"
+                Maximum="1"
+                Minimum="0.1"
+                Value="{Binding ElementName=bloom, 
+                Path=BloomCombineIntensity}" />
+            <StackPanel Orientation="Horizontal" Margin="0 5">
+                <TextBlock Foreground="White" Margin="10,0,0,0">BloomCombineSaturation:</TextBlock>
+            </StackPanel>
+            <Slider
+                Width="200"
+                Maximum="1"
+                Minimum="0.1"
+                Value="{Binding ElementName=bloom, 
+                Path=BloomCombineSaturation}" />
+            <StackPanel Orientation="Horizontal" Margin="0 5">
+                <TextBlock Foreground="White" Panel.ZIndex="10" Margin="10,0,0,0">BloomExtractIntensity:</TextBlock>
+            </StackPanel>
+            <Slider
+                Width="200"
+                Maximum="1"
+                Minimum="0.1"
+                Value="{Binding ElementName=bloom, 
+                Path=BloomExtractIntensity}" />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Foreground="White" Margin="10,0,0,0">BloomPassIntensity:</TextBlock>
+            </StackPanel>
+            <Slider
+                Width="200"
+                Maximum="1"
+                Minimum="0.1"
+                Value="{Binding ElementName=bloom, Path=BloomPassIntensity}" />
+        </StackPanel>
+    </Grid>
+</Window>
