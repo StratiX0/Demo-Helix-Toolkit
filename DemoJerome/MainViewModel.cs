@@ -20,8 +20,9 @@ namespace DemoJerome
     using System.Windows.Media;
     using System.Windows.Documents;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
-    internal class MainViewModel : BaseViewModel
+    internal class MainViewModel : BaseViewModel, INotifyPropertyChanged
     {
         public string Name { get; set; } // Nom de la fenetre
         public MainViewModel ViewModel { get { return this; } } // Recuperer le ViewModel
@@ -47,7 +48,7 @@ namespace DemoJerome
         public PhongMaterial LightModelMaterial2 { get; set; } // Materiau de la lumiere
         public PhongMaterial ObjectMaterial { set; get; } = PhongMaterials.Blue; // Materiau de l'objet 3D
 
-        public Vector3D Light1Direction { get; set; } // Direction de la lumiere
+        //public Vector3D Light1Direction { get; set; } // Direction de la lumiere
         public Color Light1Color { get; set; } // Couleur de la lumiere
         public Color Light2Color { get; set; } // Couleur de la lumiere
         public Color Light3Color { get; set; } // Couleur de la lumiere
@@ -59,6 +60,80 @@ namespace DemoJerome
         public bool RenderLight3 { get; set; } // Afficher la lumiere
 
         private bool renderDiffuseMap = true; // Afficher la texture diffuse
+
+        public new event PropertyChangedEventHandler PropertyChanged;
+
+        private double light1DirectionX;
+        public double Light1DirectionX
+        {
+            get { return light1DirectionX; }
+            set
+            {
+                if (light1DirectionX != value)
+                {
+                    light1DirectionX = value;
+                    OnPropertyChanged("Light1DirectionX");
+                    UpdateLight1Direction();
+                }
+            }
+        }
+
+        private double light1DirectionY;
+        public double Light1DirectionY
+        {
+            get { return light1DirectionY; }
+            set
+            {
+                if (light1DirectionY != value)
+                {
+                    light1DirectionY = value;
+                    OnPropertyChanged("Light1DirectionX");
+                    UpdateLight1Direction();
+                }
+            }
+        }
+
+        private double light1DirectionZ;
+        public double Light1DirectionZ
+        {
+            get { return light1DirectionZ; }
+            set
+            {
+                if (light1DirectionZ != value)
+                {
+                    light1DirectionZ = value;
+                    OnPropertyChanged("Light1DirectionX");
+                    UpdateLight1Direction();
+                }
+            }
+        }
+
+        private Vector3D light1Direction;
+        public Vector3D Light1Direction
+        {
+            get { return light1Direction; }
+            set
+            {
+                if (light1Direction != value)
+                {
+                    light1Direction = value;
+                    OnPropertyChanged("Light1Direction");
+                }
+            }
+        }
+
+        private void UpdateLight1Direction()
+        {
+            Light1Direction = new Vector3D(Light1DirectionX, Light1DirectionY, Light1DirectionZ);
+        }
+
+        protected virtual new void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+
 
         // Afficher la texture diffuse
         public bool RenderDiffuseMap
@@ -200,7 +275,7 @@ namespace DemoJerome
 
             // ----------------------------------------------
             // Setup de la camera
-            this.Camera = new PerspectiveCamera { Position = new Point3D(0, 30, 0), LookDirection = new Vector3D(0, -1, 1), UpDirection = new Vector3D(0, 1, 0) };
+            this.Camera = new PerspectiveCamera { Position = new Point3D(0, 30, -30), LookDirection = new Vector3D(0, -1, 1), UpDirection = new Vector3D(0, 1, 0) };
 
             // ----------------------------------------------
             // Setup de la lumiere
@@ -208,8 +283,8 @@ namespace DemoJerome
             this.AmbientLightColor = Colors.DarkGray;
 
             this.RenderLight1 = true;
-            this.RenderLight2 = true;
-            this.RenderLight3 = true;
+            this.RenderLight2 = false;
+            this.RenderLight3 = false;
 
             this.Light1Color = Colors.White;
             this.Light2Color = Colors.Yellow;
@@ -218,10 +293,11 @@ namespace DemoJerome
             this.Light3Attenuation = new Vector3D(0.001f, 0.001f, 0.001f);
 
             this.Light1Direction = new Vector3D(-1, -1, 0);
-            this.Light1Transform = CreateAnimatedTransform1(Light1Direction, new Vector3D(0, -100, 0), 5);
-            this.Light2Transform = CreateAnimatedTransform1(new Vector3D(0, 0, 100), new Vector3D(0, -10, 0), 3);
+            //this.Light1Transform = new TranslateTransform3D(Light1X, Light1Y, Light1Z);
+            //this.Light1Transform = CreateAnimatedTransform1(Light1Direction, new Vector3D(0, -100, 0), 5);
+            //this.Light2Transform = CreateAnimatedTransform1(new Vector3D(0, 0, 100), new Vector3D(0, -10, 0), 3);
             //this.Light3Transform = new TranslateTransform3D(0, 0, 0);
-            this.Light3Transform = CreateAnimatedTransform3(0, 100, 3);
+            //this.Light3Transform = CreateAnimatedTransform3(0, 100, 3);
 
 
             var transformGroup = new Media3D.Transform3DGroup();
@@ -233,29 +309,29 @@ namespace DemoJerome
             // ----------------------------------------------
             // Modele 3D 
 
-            var sphere = new MeshBuilder();
-            sphere.AddSphere(new Vector3(0, 15, 0), 10);
-            Sphere = sphere.ToMeshGeometry3D();
-            this.LightModelMaterial = new PhongMaterial
-            {
-                AmbientColor = Colors.Gray.ToColor4(),
-                DiffuseColor = Colors.Gray.ToColor4(),
-                EmissiveColor = Colors.Yellow.ToColor4(),
-                SpecularColor = Colors.Black.ToColor4(),
+            //var sphere = new MeshBuilder();
+            //sphere.AddSphere(new Vector3(0, 15, 0), 10);
+            //Sphere = sphere.ToMeshGeometry3D();
+            //this.LightModelMaterial = new PhongMaterial
+            //{
+            //    AmbientColor = Colors.Gray.ToColor4(),
+            //    DiffuseColor = Colors.Gray.ToColor4(),
+            //    EmissiveColor = Colors.Yellow.ToColor4(),
+            //    SpecularColor = Colors.Black.ToColor4(),
 
-            };
+            //};
 
-            var sphere2 = new MeshBuilder();
-            sphere2.AddSphere(new Vector3(0, 15, 0), 5);
-            Sphere2 = sphere2.ToMeshGeometry3D();
-            this.LightModelMaterial2 = new PhongMaterial
-            {
-                AmbientColor = Colors.Gray.ToColor4(),
-                DiffuseColor = Colors.Gray.ToColor4(),
-                EmissiveColor = Colors.Red.ToColor4(),
-                SpecularColor = Colors.Black.ToColor4(),
+            //var sphere2 = new MeshBuilder();
+            //sphere2.AddSphere(new Vector3(0, 15, 0), 5);
+            //Sphere2 = sphere2.ToMeshGeometry3D();
+            //this.LightModelMaterial2 = new PhongMaterial
+            //{
+            //    AmbientColor = Colors.Gray.ToColor4(),
+            //    DiffuseColor = Colors.Gray.ToColor4(),
+            //    EmissiveColor = Colors.Red.ToColor4(),
+            //    SpecularColor = Colors.Black.ToColor4(),
 
-            };
+            //};
 
             //var sphere2 = new MeshBuilder();
             //sphere2.AddSphere(new Vector3(0, 30, 0), 10);
@@ -270,11 +346,11 @@ namespace DemoJerome
             // scene model3d
 
             var b1 = new MeshBuilder(true, true, true);
-            b1.AddBox(new Vector3(100.0f, 22.5f, 100.0f), 50, 50, 50, BoxFaces.All);
-            b1.AddSphere(new Vector3(-75f, 10f, -50f), 15, 24, 24);
-            b1.AddSphere(new Vector3(-60f, 25f, -40f), 5, 24, 24);
-            b1.AddTetrahedron(new Vector3(110f, 0f, 0f), new Vector3(5, 0, 0), new Vector3(0, 5, 0), 5);
-            b1.AddPipe(new Vector3(0, -5, 0), new Vector3(0, 100, 0), 25, 30, 36);
+            b1.AddBox(new Vector3(0.0f, 22.5f, 0.0f), 50, 50, 50, BoxFaces.All);
+            //b1.AddSphere(new Vector3(-75f, 10f, -50f), 15, 24, 24);
+            //b1.AddSphere(new Vector3(-60f, 25f, -40f), 5, 24, 24);
+            //b1.AddTetrahedron(new Vector3(110f, 0f, 0f), new Vector3(5, 0, 0), new Vector3(0, 5, 0), 5);
+            //b1.AddPipe(new Vector3(0, -5, 0), new Vector3(0, 100, 0), 25, 30, 36);
             this.Model = b1.ToMeshGeometry3D();
             this.ModelTransform = new Media3D.TranslateTransform3D(0, 0, 0);
             this.ModelMaterial = new PhongMaterial();
